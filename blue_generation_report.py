@@ -99,6 +99,18 @@ def fetch_data(target_date):
 
     print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, Count={idx_count}, Done={idx_done}")
 
+    def normalize_date(d):
+        d = d.strip()
+        if not d: return ""
+        # Handle formats like 1-May-26 and 01-May-26
+        parts = d.split('-')
+        if len(parts) == 3:
+            day = parts[0].lstrip('0')
+            return f"{day}-{parts[1]}-{parts[2]}"
+        return d
+
+    target_date_norm = normalize_date(target_date)
+
     rows = all_data[1:]
     
     emails_received = 0
@@ -112,11 +124,15 @@ def fetch_data(target_date):
         if len(row) <= max_idx:
             row = row + [""] * (max_idx + 1 - len(row))
         
-        row_date = str(row[idx_date]).strip()
+        row_date_raw = str(row[idx_date]).strip()
+        row_date = normalize_date(row_date_raw)
+        
         email_from = str(row[idx_from]).strip()
         email_subject = str(row[idx_subject]).strip()
         total_items = str(row[idx_count]).strip()
-        done_date = str(row[idx_done]).strip()
+        
+        done_date_raw = str(row[idx_done]).strip()
+        done_date = normalize_date(done_date_raw)
         
         if row_date == today_str:
             continue
@@ -127,11 +143,11 @@ def fetch_data(target_date):
             continue
             
         # 1. Emails Received: Date matches target_date
-        if row_date == target_date:
+        if row_date == target_date_norm:
             emails_received += 1
             
         # 2. Emails Completed: Done date matches target_date
-        if done_date == target_date:
+        if done_date == target_date_norm:
             emails_completed += 1
             try:
                 # Clean total_items string
@@ -145,13 +161,13 @@ def fetch_data(target_date):
             pending_count += 1
             
         # 4. Detailed Rows
-        if (done_date == target_date or is_pending) and row_date:
+        if (done_date == target_date_norm or is_pending) and row_date:
             detailed_rows.append([
-                row[idx_date],
-                row[idx_from],
-                row[idx_subject],
+                row_date_raw,
+                email_from,
+                email_subject,
                 row[idx_count] if not is_pending else "",
-                row[idx_done] if row[idx_done].strip() else "Pending"
+                done_date_raw if done_date_raw.strip() else "Pending"
             ])
 
     return emails_received, emails_completed, total_completed_items, pending_count, detailed_rows
