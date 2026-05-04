@@ -83,6 +83,21 @@ def fetch_data(target_date):
     all_data = ws.get_all_values()
     if not all_data:
         return 0, 0, 0, 0, []
+        
+    headers = all_data[0]
+    def find_col(names, default):
+        for i, h in enumerate(headers):
+            if any(n.lower() in h.lower() for n in names):
+                return i
+        return default
+
+    idx_date = find_col(["date"], 0)
+    idx_from = find_col(["from", "name"], 5)
+    idx_subject = find_col(["subject"], 6)
+    idx_count = find_col(["count", "total virtual"], 9)
+    idx_done = find_col(["done"], 13)
+
+    print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, Count={idx_count}, Done={idx_done}")
 
     rows = all_data[1:]
     
@@ -93,15 +108,15 @@ def fetch_data(target_date):
     detailed_rows = []
 
     for row in rows:
-        # Pad row if shorter than index N (13)
-        if len(row) < 14:
-            row = row + [""] * (14 - len(row))
+        max_idx = max(idx_date, idx_from, idx_subject, idx_count, idx_done)
+        if len(row) <= max_idx:
+            row = row + [""] * (max_idx + 1 - len(row))
         
-        row_date = str(row[0]).strip()       # Column A
-        email_from = str(row[5]).strip()    # Column F
-        email_subject = str(row[6]).strip() # Column G
-        total_items = str(row[9]).strip()   # Column J
-        done_date = str(row[13]).strip()    # Column N
+        row_date = str(row[idx_date]).strip()
+        email_from = str(row[idx_from]).strip()
+        email_subject = str(row[idx_subject]).strip()
+        total_items = str(row[idx_count]).strip()
+        done_date = str(row[idx_done]).strip()
         
         if row_date == today_str:
             continue
@@ -132,11 +147,11 @@ def fetch_data(target_date):
         # 4. Detailed Rows
         if (done_date == target_date or is_pending) and row_date:
             detailed_rows.append([
-                row[0], # Date
-                row[5], # Emails from
-                row[6], # Email subject
-                row[9] if not is_pending else "", # Count
-                row[13] if row[13].strip() else "Pending" # Done date
+                row[idx_date],
+                row[idx_from],
+                row[idx_subject],
+                row[idx_count] if not is_pending else "",
+                row[idx_done] if row[idx_done].strip() else "Pending"
             ])
 
     return emails_received, emails_completed, total_completed_items, pending_count, detailed_rows
