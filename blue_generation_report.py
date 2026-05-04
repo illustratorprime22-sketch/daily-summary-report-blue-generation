@@ -93,15 +93,15 @@ def fetch_data(target_date):
     detailed_rows = []
 
     for row in rows:
-        # Pad row if shorter than index M (13) - assuming +1 shift
+        # Pad row if shorter than index N (13)
         if len(row) < 14:
             row = row + [""] * (14 - len(row))
         
-        row_date = str(row[1]).strip()       # Column A (index 1)
-        email_from = str(row[5]).strip()    # Column E (index 5)
-        email_subject = str(row[6]).strip() # Column F (index 6)
-        total_items = str(row[9]).strip()   # Column I (index 9)
-        done_date = str(row[13]).strip()    # Column M (index 13)
+        row_date = str(row[0]).strip()       # Column A
+        email_from = str(row[5]).strip()    # Column F
+        email_subject = str(row[6]).strip() # Column G
+        total_items = str(row[9]).strip()   # Column J
+        done_date = str(row[13]).strip()    # Column N
         
         if row_date == today_str:
             continue
@@ -132,7 +132,7 @@ def fetch_data(target_date):
         # 4. Detailed Rows
         if (done_date == target_date or is_pending) and row_date:
             detailed_rows.append([
-                row[1], # Date
+                row[0], # Date
                 row[5], # Emails from
                 row[6], # Email subject
                 row[9] if not is_pending else "", # Count
