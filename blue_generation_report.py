@@ -95,7 +95,7 @@ def fetch_data(target_date):
     idx_from = find_col(["from", "name"], 4)
     idx_subject = find_col(["subject", "email subject"], 5)
     idx_count = find_col(["count", "total virtual"], 8)
-    idx_done = find_col(["done"], 12)
+    idx_done = find_col(["done date"], 13)
 
     print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, Count={idx_count}, Done={idx_done}")
 
