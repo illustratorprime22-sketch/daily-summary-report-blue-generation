@@ -93,15 +93,15 @@ def fetch_data(target_date):
     detailed_rows = []
 
     for row in rows:
-        # Pad row if shorter than index M (12)
-        if len(row) < 13:
-            row = row + [""] * (13 - len(row))
+        # Pad row if shorter than index M (13) - assuming +1 shift
+        if len(row) < 14:
+            row = row + [""] * (14 - len(row))
         
-        row_date = str(row[0]).strip()
-        email_from = str(row[4]).strip()    # Column E
-        email_subject = str(row[5]).strip() # Column F
-        total_items = str(row[8]).strip()   # Column I
-        done_date = str(row[12]).strip()    # Column M
+        row_date = str(row[1]).strip()       # Column A (index 1)
+        email_from = str(row[5]).strip()    # Column E (index 5)
+        email_subject = str(row[6]).strip() # Column F (index 6)
+        total_items = str(row[9]).strip()   # Column I (index 9)
+        done_date = str(row[13]).strip()    # Column M (index 13)
         
         if row_date == today_str:
             continue
@@ -119,7 +119,7 @@ def fetch_data(target_date):
         if done_date == target_date:
             emails_completed += 1
             try:
-                # Clean total_items string (sometimes it might have spaces or non-numeric chars)
+                # Clean total_items string
                 val = "".join(filter(str.isdigit, total_items))
                 total_completed_items += int(val) if val else 0
             except:
@@ -129,14 +129,14 @@ def fetch_data(target_date):
         if is_pending and row_date:
             pending_count += 1
             
-        # 4. Detailed Rows: Include if Done date matches target_date OR it is pending
+        # 4. Detailed Rows
         if (done_date == target_date or is_pending) and row_date:
             detailed_rows.append([
-                row[0], 
-                row[4], # Emails from
-                row[5], # Email subject
-                row[8] if not is_pending else "", # Count
-                row[12] if row[12].strip() else "Pending" # Done date
+                row[1], # Date
+                row[5], # Emails from
+                row[6], # Email subject
+                row[9] if not is_pending else "", # Count
+                row[13] if row[13].strip() else "Pending" # Done date
             ])
 
     return emails_received, emails_completed, total_completed_items, pending_count, detailed_rows
