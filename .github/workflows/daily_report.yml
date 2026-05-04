@@ -1,0 +1,31 @@
+name: Blue Generation Daily Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 1 * * 1-5' # Runs at 1:45 AM UTC (7:15 AM IST) Monday through Friday
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Blue Generation report script
+      env:
+        GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD_MKAWS }}
+      run: |
+        python blue_generation_report.py
