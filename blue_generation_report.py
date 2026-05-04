@@ -92,10 +92,10 @@ def fetch_data(target_date):
         return default
 
     idx_date = find_col(["date"], 0)
-    idx_from = find_col(["from", "name"], 5)
-    idx_subject = find_col(["subject"], 6)
-    idx_count = find_col(["count", "total virtual"], 9)
-    idx_done = find_col(["done"], 13)
+    idx_from = find_col(["from", "name"], 4)
+    idx_subject = find_col(["subject", "email subject"], 5)
+    idx_count = find_col(["count", "total virtual"], 8)
+    idx_done = find_col(["done"], 12)
 
     print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, Count={idx_count}, Done={idx_done}")
 
@@ -160,8 +160,8 @@ def fetch_data(target_date):
         if is_pending and row_date:
             pending_count += 1
             
-        # 4. Detailed Rows
-        if (done_date == target_date_norm or is_pending) and row_date:
+        # 4. Detailed Rows: ONLY include items for the target date
+        if (row_date == target_date_norm or done_date == target_date_norm):
             detailed_rows.append([
                 row_date_raw,
                 email_from,
