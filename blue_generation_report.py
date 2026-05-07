@@ -102,7 +102,6 @@ def fetch_data(target_date):
     def normalize_date(d):
         d = d.strip()
         if not d: return ""
-        # Handle formats like 1-May-26 and 01-May-26
         parts = d.split('-')
         if len(parts) == 3:
             day = parts[0].lstrip('0')
@@ -110,7 +109,6 @@ def fetch_data(target_date):
         return d
 
     target_date_norm = normalize_date(target_date)
-
     rows = all_data[1:]
     
     emails_received = 0
@@ -134,14 +132,16 @@ def fetch_data(target_date):
         done_date_raw = str(row[idx_done]).strip()
         done_date = normalize_date(done_date_raw)
         
-        if row_date == today_str:
+        # Skip if no date or if it matches today
+        if not row_date or row_date == today_str:
+            continue
+            
+        # --- VALIDATION: Skip header rows and empty placeholder rows ---
+        if not email_subject or email_subject.lower() == 'email subject' or email_from.lower() == 'email from':
             continue
             
         is_pending = not done_date or done_date.lower() == 'pending'
         
-        if is_pending and not email_subject:
-            continue
-            
         # 1. Emails Received: Date matches target_date
         if row_date == target_date_norm:
             emails_received += 1
@@ -156,8 +156,8 @@ def fetch_data(target_date):
             except:
                 pass
         
-        # 3. Pending: Any row (not today's) that is pending
-        if is_pending and row_date:
+        # 3. Pending: Done date is "Pending" or empty
+        if is_pending:
             pending_count += 1
             
         # 4. Detailed Rows: ONLY include items for the target date
