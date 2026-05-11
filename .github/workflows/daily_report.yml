@@ -1,9 +1,7 @@
 name: Blue Generation Daily Report
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '15 13 * * 1-5' # 6:45 PM IST
+  workflow_dispatch: # Triggered via Google Apps Script at 6:45 PM IST (Mon-Fri)
 
 
 jobs:
