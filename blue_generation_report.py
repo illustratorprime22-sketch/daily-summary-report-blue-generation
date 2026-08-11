@@ -166,9 +166,9 @@ def fetch_data(target_date):
         if (row_date == target_date_norm or done_date == target_date_norm):
             detailed_rows.append([
                 row_date_raw,
+                request_type,
                 email_from,
                 email_subject,
-                request_type,
                 row[idx_count] if not is_pending else "",
                 done_date_raw if done_date_raw.strip() else "Pending"
             ])
@@ -238,7 +238,7 @@ def format_html(target_date, emails_received, emails_completed, total_completed_
         <table class="detail-table">
             <tr><td colspan="6" class="section-title">Blue-Generation</td></tr>
             <tr class="header-cell">
-                <td>Date</td><td>Emails from</td><td>Email subject</td><td>Request Type</td><td>Count</td><td>Done date</td>
+                <td>Date</td><td>Request Type</td><td>Emails from</td><td>Email subject</td><td>Count</td><td>Done date</td>
             </tr>
             {% for row in detailed_rows %}
             <tr>
