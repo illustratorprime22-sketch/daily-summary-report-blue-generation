@@ -94,10 +94,11 @@ def fetch_data(target_date):
     idx_date = find_col(["date"], 0)
     idx_from = find_col(["from", "name"], 4)
     idx_subject = find_col(["subject", "email subject"], 5)
+    idx_request_type = find_col(["request type"], 6)
     idx_count = find_col(["count", "total virtual"], 8)
     idx_done = find_col(["done date"], 13)
 
-    print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, Count={idx_count}, Done={idx_done}")
+    print(f"Detected columns: Date={idx_date}, From={idx_from}, Subject={idx_subject}, RequestType={idx_request_type}, Count={idx_count}, Done={idx_done}")
 
     def normalize_date(d):
         d = d.strip()
@@ -118,7 +119,7 @@ def fetch_data(target_date):
     detailed_rows = []
 
     for row in rows:
-        max_idx = max(idx_date, idx_from, idx_subject, idx_count, idx_done)
+        max_idx = max(idx_date, idx_from, idx_subject, idx_request_type, idx_count, idx_done)
         if len(row) <= max_idx:
             row = row + [""] * (max_idx + 1 - len(row))
         
@@ -127,6 +128,7 @@ def fetch_data(target_date):
         
         email_from = str(row[idx_from]).strip()
         email_subject = str(row[idx_subject]).strip()
+        request_type = str(row[idx_request_type]).strip()
         total_items = str(row[idx_count]).strip()
         
         done_date_raw = str(row[idx_done]).strip()
@@ -166,6 +168,7 @@ def fetch_data(target_date):
                 row_date_raw,
                 email_from,
                 email_subject,
+                request_type,
                 row[idx_count] if not is_pending else "",
                 done_date_raw if done_date_raw.strip() else "Pending"
             ])
@@ -233,13 +236,13 @@ def format_html(target_date, emails_received, emails_completed, total_completed_
 
         <!-- Detailed Table -->
         <table class="detail-table">
-            <tr><td colspan="5" class="section-title">Blue-Generation</td></tr>
+            <tr><td colspan="6" class="section-title">Blue-Generation</td></tr>
             <tr class="header-cell">
-                <td>Date</td><td>Emails from</td><td>Email subject</td><td>Count</td><td>Done date</td>
+                <td>Date</td><td>Emails from</td><td>Email subject</td><td>Request Type</td><td>Count</td><td>Done date</td>
             </tr>
             {% for row in detailed_rows %}
             <tr>
-                <td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td><td>{{ row[3] }}</td><td>{{ row[4] }}</td>
+                <td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td><td>{{ row[3] }}</td><td>{{ row[4] }}</td><td>{{ row[5] }}</td>
             </tr>
             {% endfor %}
         </table>
